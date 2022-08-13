@@ -2,6 +2,7 @@ package xc_share_file_client
 
 import (
 	"crypto/rsa"
+	"encoding/base32"
 	"fmt"
 
 	"github.com/ipoluianov/gomisc/crypt_tools"
@@ -16,9 +17,10 @@ func GetFile(publicAddress string, password string) {
 	if err != nil {
 		return
 	}
-	clientPrivateKey := crypt_tools.RSAPrivateKeyToBase58(privateKey)
+	privateKeyBS := crypt_tools.RSAPrivateKeyToDer(privateKey)
+	clientPrivateKey := base32.StdEncoding.EncodeToString(privateKeyBS)
 
-	client := xchg_connections.NewClientConnection(xchg_network.NewNetworkDefault(), publicAddress, clientPrivateKey, password)
+	client := xchg_connections.NewClientConnection(xchg_network.NewNetworkDefault(), publicAddress, clientPrivateKey, password, nil)
 	var bs []byte
 	bs, err = client.Call("get-file-content", nil)
 	if err != nil {
