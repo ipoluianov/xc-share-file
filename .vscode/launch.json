@@ -13,6 +13,6 @@
             "output": "xc-share-file.exe",
             "console": "externalTerminal",
             "args": ["share", "file.txt", "123"]
-        }
+       }
     ]
 }

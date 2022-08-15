@@ -21,24 +21,26 @@ func main() {
 			return
 		}
 		srv := xc_share_file_server.NewXcFileShareServer(os.Args[2], os.Args[3])
-		publicKey, err := srv.Start()
+		err := srv.Start()
 		if err != nil {
 			fmt.Println("ERROR:", err)
 			return
 		}
-		fmt.Println("File is shared. PublicKey:")
-		fmt.Println(publicKey)
 		fmt.Println("Press Enter to exit")
 		fmt.Scanln()
 		return
 	}
 
 	if command == "get" {
-		if len(os.Args) != 4 {
-			fmt.Println("need address")
+		if len(os.Args) < 4 {
+			fmt.Println("get addr password [filename]")
 			return
 		}
-		xc_share_file_client.GetFile(os.Args[2], os.Args[3])
+		fileName := ""
+		if len(os.Args) > 4 {
+			fileName = os.Args[4]
+		}
+		xc_share_file_client.GetFile(os.Args[2], os.Args[3], fileName)
 		return
 	}
 
