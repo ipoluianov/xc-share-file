@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	fmt.Println("XC-FILE-SHARE v" + xc_share_file_server.Version)
 	if len(os.Args) < 2 {
 		fmt.Println("LEGEND")
 		return

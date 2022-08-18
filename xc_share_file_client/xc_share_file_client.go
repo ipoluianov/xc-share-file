@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/ipoluianov/gomisc/crypt_tools"
 	"github.com/ipoluianov/xchg/xchg_connections"
@@ -79,11 +80,12 @@ func GetFile(publicAddress string, password string, destFile string) {
 		block, err = getFileContent(client, receviedBytes, blockSize)
 		if err != nil {
 			fmt.Println("getFileContent ERROR:", err)
-			return
+			time.Sleep(100 * time.Millisecond)
+			continue
 		}
 		file.Write(block)
 		receviedBytes += len(block)
-		fmt.Println("received", receviedBytes, "bytes", "progress", (float64(receviedBytes)/float64(fileSize))*100, "%")
+		fmt.Printf("received %d bytes; %.2f %%\r\n", receviedBytes, float64(receviedBytes)/float64(fileSize)*100)
 	}
 
 	fmt.Println("Complete", receviedBytes, "bytes")

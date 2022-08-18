@@ -16,6 +16,8 @@ import (
 	"github.com/ipoluianov/xchg/xchg_network"
 )
 
+const Version = "0.0.42"
+
 type XcShareFileServer struct {
 	srv      *xchg_connections.ServerConnection
 	fileName string
@@ -50,11 +52,13 @@ func (c *XcShareFileServer) Start() (err error) {
 	serverPrivateKey32 := base32.StdEncoding.EncodeToString(serverPrivateKeyBS)
 	serverAddress := xchg.AddressForPublicKey(&privateKey.PublicKey)
 	network := xchg_network.NewNetworkDefault()
-	c.srv = xchg_connections.NewServerConnection(serverPrivateKey32, network)
+	c.srv = xchg_connections.NewServerConnection()
 	c.srv.SetProcessor(c)
-	c.srv.Start()
+	c.srv.Start(serverPrivateKey32, network)
 
+	// waiting for connections
 	time.Sleep(1 * time.Second)
+
 	state := c.srv.State()
 	connectedPeers := make([]string, 0)
 	fmt.Println()
@@ -90,7 +94,7 @@ func (c *XcShareFileServer) ServerProcessorAuth(authData []byte) (err error) {
 func (c *XcShareFileServer) ServerProcessorCall(function string, parameter []byte) (response []byte, err error) {
 	switch function {
 	case "get-version":
-		response = []byte("xc-share-file 2.02")
+		response = []byte("xc-share-file v" + Version)
 	case "get-file-name":
 		response = c.processGetFileName()
 	case "get-file-size":
