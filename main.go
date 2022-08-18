@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"xc-share-file/xc_share_file_client"
-	"xc-share-file/xc_share_file_server"
+
+	"github.com/ipoluianov/xc-share-file/xc_share_file_client"
+	"github.com/ipoluianov/xc-share-file/xc_share_file_server"
 )
 
 func main() {

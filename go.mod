@@ -1,4 +1,4 @@
-module xc-share-file
+module github.com/ipoluianov/xc-share-file
 
 go 1.18
 

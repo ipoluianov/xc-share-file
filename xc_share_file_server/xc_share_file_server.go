@@ -16,7 +16,7 @@ import (
 	"github.com/ipoluianov/xchg/xchg_network"
 )
 
-const Version = "0.0.43"
+const Version = "0.0.44"
 
 type XcShareFileServer struct {
 	srv      *xchg_connections.ServerConnection
