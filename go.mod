@@ -1,4 +1,4 @@
-module xc_share_file
+module xc-share-file
 
 go 1.18
 

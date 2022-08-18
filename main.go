@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"xc_share_file/xc_share_file_client"
-	"xc_share_file/xc_share_file_server"
+	"xc-share-file/xc_share_file_client"
+	"xc-share-file/xc_share_file_server"
 )
 
 func main() {
