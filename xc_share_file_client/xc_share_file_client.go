@@ -24,7 +24,7 @@ func GetFile(publicAddress string, password string, destFile string) {
 	privateKeyBS := crypt_tools.RSAPrivateKeyToDer(privateKey)
 	clientPrivateKey := base32.StdEncoding.EncodeToString(privateKeyBS)
 
-	client := xchg_connections.NewClientConnection(xchg_network.NewNetworkDefault(), publicAddress, clientPrivateKey, password, nil)
+	client := xchg_connections.NewClientConnection(xchg_network.NewNetworkFromInternet(), publicAddress, clientPrivateKey, password, nil)
 
 	var version string
 	version, err = getVersion(client)
@@ -74,7 +74,7 @@ func GetFile(publicAddress string, password string, destFile string) {
 
 	receviedBytes := 0
 
-	blockSize := 90 * 1024
+	blockSize := 1 * 1024
 	for receviedBytes < fileSize {
 		var block []byte
 		block, err = getFileContent(client, receviedBytes, blockSize)

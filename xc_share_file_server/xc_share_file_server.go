@@ -51,7 +51,7 @@ func (c *XcShareFileServer) Start() (err error) {
 	serverPrivateKeyBS := crypt_tools.RSAPrivateKeyToDer(privateKey)
 	serverPrivateKey32 := base32.StdEncoding.EncodeToString(serverPrivateKeyBS)
 	serverAddress := xchg.AddressForPublicKey(&privateKey.PublicKey)
-	network := xchg_network.NewNetworkDefault()
+	network := xchg_network.NewNetworkFromInternet()
 	c.srv = xchg_connections.NewServerConnection()
 	c.srv.SetProcessor(c)
 	c.srv.Start(serverPrivateKey32, network)
