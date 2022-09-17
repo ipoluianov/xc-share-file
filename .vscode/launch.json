@@ -12,7 +12,7 @@
             "program": "main.go",
             "output": "xc-share-file.exe",
             "console": "externalTerminal",
-            "args": ["share", "file.txt", "123"]
+            "args": ["share", "d:\\Boeing-B737-700-800-900-Operations-Manual.pdf", "123"]
        }
     ]
 }

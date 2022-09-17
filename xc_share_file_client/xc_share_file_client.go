@@ -70,7 +70,7 @@ func GetFile(publicAddress string, password string, destFile string) {
 
 	receviedBytes := 0
 
-	blockSize := 64 * 1024
+	blockSize := 500 * 1024
 	for receviedBytes < fileSize {
 		var block []byte
 		block, err = getFileContent(client, publicAddress, password, receviedBytes, blockSize)
@@ -130,7 +130,7 @@ func getFileContent(client *xchg.Peer, publicAddress string, password string, of
 	parameter := make([]byte, 16)
 	binary.LittleEndian.PutUint64(parameter[0:], uint64(offset))
 	binary.LittleEndian.PutUint64(parameter[8:], uint64(size))
-	bs, err = client.Call(publicAddress, password, "get-file-content", parameter, time.Second)
+	bs, err = client.Call(publicAddress, password, "get-file-content", parameter, 3*time.Second)
 	if err != nil {
 		return
 	}
