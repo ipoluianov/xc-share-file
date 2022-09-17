@@ -2,7 +2,6 @@ package xc_share_file_client
 
 import (
 	"crypto/rsa"
-	"encoding/base32"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -10,8 +9,7 @@ import (
 	"time"
 
 	"github.com/ipoluianov/gomisc/crypt_tools"
-	"github.com/ipoluianov/xchg/xchg_connections"
-	"github.com/ipoluianov/xchg/xchg_network"
+	"github.com/ipoluianov/xchg/xchg"
 )
 
 func GetFile(publicAddress string, password string, destFile string) {
@@ -21,13 +19,11 @@ func GetFile(publicAddress string, password string, destFile string) {
 	if err != nil {
 		return
 	}
-	privateKeyBS := crypt_tools.RSAPrivateKeyToDer(privateKey)
-	clientPrivateKey := base32.StdEncoding.EncodeToString(privateKeyBS)
 
-	client := xchg_connections.NewClientConnection(xchg_network.NewNetworkFromInternet(), publicAddress, clientPrivateKey, password, nil)
+	client := xchg.NewPeer(privateKey)
 
 	var version string
-	version, err = getVersion(client)
+	version, err = getVersion(client, publicAddress, password)
 	if err != nil {
 		fmt.Println("getVersion ERROR:", err)
 		return
@@ -35,7 +31,7 @@ func GetFile(publicAddress string, password string, destFile string) {
 	fmt.Println("Version:", version)
 
 	var fileName string
-	fileName, err = getFileName(client)
+	fileName, err = getFileName(client, publicAddress, password)
 	if err != nil {
 		fmt.Println("getFileName ERROR:", err)
 		return
@@ -56,7 +52,7 @@ func GetFile(publicAddress string, password string, destFile string) {
 	}
 
 	var fileSize int
-	fileSize, err = getFileSize(client)
+	fileSize, err = getFileSize(client, publicAddress, password)
 	if err != nil {
 		fmt.Println("getFileSize ERROR:", err)
 		return
@@ -74,10 +70,10 @@ func GetFile(publicAddress string, password string, destFile string) {
 
 	receviedBytes := 0
 
-	blockSize := 1 * 1024
+	blockSize := 64 * 1024
 	for receviedBytes < fileSize {
 		var block []byte
-		block, err = getFileContent(client, receviedBytes, blockSize)
+		block, err = getFileContent(client, publicAddress, password, receviedBytes, blockSize)
 		if err != nil {
 			fmt.Println("getFileContent ERROR:", err)
 			time.Sleep(100 * time.Millisecond)
@@ -89,22 +85,25 @@ func GetFile(publicAddress string, password string, destFile string) {
 	}
 
 	fmt.Println("Complete", receviedBytes, "bytes")
-	client.Call("thank-you", nil)
+	client.Call(publicAddress, password, "thank-you", nil, time.Second)
 }
 
-func getVersion(client *xchg_connections.ClientConnection) (version string, err error) {
-	var bs []byte
-	bs, err = client.Call("get-version", nil)
-	if err != nil {
-		return
+func getVersion(client *xchg.Peer, publicAddress string, password string) (version string, err error) {
+	for i := 0; i < 3; i++ {
+		var bs []byte
+		bs, err = client.Call(publicAddress, password, "get-version", nil, time.Second)
+		if err == nil {
+			version = string(bs)
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
-	version = string(bs)
 	return
 }
 
-func getFileName(client *xchg_connections.ClientConnection) (fileName string, err error) {
+func getFileName(client *xchg.Peer, publicAddress string, password string) (fileName string, err error) {
 	var bs []byte
-	bs, err = client.Call("get-file-name", nil)
+	bs, err = client.Call(publicAddress, password, "get-file-name", nil, time.Second)
 	if err != nil {
 		return
 	}
@@ -112,9 +111,9 @@ func getFileName(client *xchg_connections.ClientConnection) (fileName string, er
 	return
 }
 
-func getFileSize(client *xchg_connections.ClientConnection) (fileSize int, err error) {
+func getFileSize(client *xchg.Peer, publicAddress string, password string) (fileSize int, err error) {
 	var bs []byte
-	bs, err = client.Call("get-file-size", nil)
+	bs, err = client.Call(publicAddress, password, "get-file-size", nil, time.Second)
 	if err != nil {
 		return
 	}
@@ -126,12 +125,12 @@ func getFileSize(client *xchg_connections.ClientConnection) (fileSize int, err e
 	return
 }
 
-func getFileContent(client *xchg_connections.ClientConnection, offset int, size int) (fileContent []byte, err error) {
+func getFileContent(client *xchg.Peer, publicAddress string, password string, offset int, size int) (fileContent []byte, err error) {
 	var bs []byte
 	parameter := make([]byte, 16)
 	binary.LittleEndian.PutUint64(parameter[0:], uint64(offset))
 	binary.LittleEndian.PutUint64(parameter[8:], uint64(size))
-	bs, err = client.Call("get-file-content", parameter)
+	bs, err = client.Call(publicAddress, password, "get-file-content", parameter, time.Second)
 	if err != nil {
 		return
 	}

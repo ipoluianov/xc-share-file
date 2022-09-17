@@ -2,7 +2,6 @@ package xc_share_file_server
 
 import (
 	"crypto/rsa"
-	"encoding/base32"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -12,14 +11,12 @@ import (
 
 	"github.com/ipoluianov/gomisc/crypt_tools"
 	"github.com/ipoluianov/xchg/xchg"
-	"github.com/ipoluianov/xchg/xchg_connections"
-	"github.com/ipoluianov/xchg/xchg_network"
 )
 
 const Version = "0.0.44"
 
 type XcShareFileServer struct {
-	srv      *xchg_connections.ServerConnection
+	srv      *xchg.Peer
 	fileName string
 	baseName string
 	password string
@@ -48,18 +45,17 @@ func (c *XcShareFileServer) Start() (err error) {
 	if err != nil {
 		return
 	}
-	serverPrivateKeyBS := crypt_tools.RSAPrivateKeyToDer(privateKey)
-	serverPrivateKey32 := base32.StdEncoding.EncodeToString(serverPrivateKeyBS)
+	//serverPrivateKeyBS := crypt_tools.RSAPrivateKeyToDer(privateKey)
+	//serverPrivateKey32 := base32.StdEncoding.EncodeToString(serverPrivateKeyBS)
 	serverAddress := xchg.AddressForPublicKey(&privateKey.PublicKey)
-	network := xchg_network.NewNetworkFromInternet()
-	c.srv = xchg_connections.NewServerConnection()
+	c.srv = xchg.NewPeer(privateKey)
 	c.srv.SetProcessor(c)
-	c.srv.Start(serverPrivateKey32, network)
+	c.srv.Start()
 
 	// waiting for connections
 	time.Sleep(1 * time.Second)
 
-	state := c.srv.State()
+	/*state := c.srv.State()
 	connectedPeers := make([]string, 0)
 	fmt.Println()
 	fmt.Println("----- CONNECTIONS -----")
@@ -69,7 +65,7 @@ func (c *XcShareFileServer) Start() (err error) {
 			fmt.Println("Connected to ", p.BaseConnection.Host)
 		}
 	}
-	fmt.Println("-----------------------")
+	fmt.Println("-----------------------")*/
 
 	fmt.Println("ADDRESS:")
 	fmt.Println()
